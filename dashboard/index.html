@@ -114,25 +114,25 @@
                     <span class="live-dot"></span>
                     <span class="status-badge status-online" id="status">ONLINE</span>
                 </div>
-                <p style="color:#888; margin-top:10px;" id="uptime">Running: 4h+ (Phase 2)</p>
+                <p style="color:#888; margin-top:10px;" id="uptime">Running: 8h+ | 27 trades</p>
             </div>
             
             <div class="card">
                 <h3>Paper Balance</h3>
-                <div class="value red" id="balance">$92.00</div>
-                <p style="color:#888; margin-top:10px;">-8% (learning phase)</p>
+                <div class="value red" id="balance">$90.61</div>
+                <p style="color:#888; margin-top:10px;">-9.4% (learning phase)</p>
             </div>
             
             <div class="card">
                 <h3>Total Scans</h3>
-                <div class="value blue" id="scans">950+</div>
-                <p style="color:#888; margin-top:10px;">8 sources, 45+ tokens/scan</p>
+                <div class="value blue" id="scans">1,030+</div>
+                <p style="color:#888; margin-top:10px;">8 sources, 49 tokens/scan</p>
             </div>
             
             <div class="card">
-                <h3>Trades</h3>
-                <div class="value yellow" id="winrate">3</div>
-                <p style="color:#888; margin-top:10px;">2 open / 1 closed</p>
+                <h3>Win Rate</h3>
+                <div class="value yellow" id="winrate">23%</div>
+                <p style="color:#888; margin-top:10px;">6 wins / 26 trades</p>
             </div>
         </div>
 
@@ -152,28 +152,52 @@
                     </thead>
                     <tbody id="trades">
                         <tr>
-                            <td>Feb 9, 12:44</td>
-                            <td>AI (J7CSm...pump)</td>
-                            <td>$0.00002726</td>
-                            <td>—</td>
-                            <td class="loss">-7.1% (open)</td>
-                            <td>5m+</td>
+                            <td>Feb 9, 16:17</td>
+                            <td>AI (4LNk...pump)</td>
+                            <td>$0.00002059</td>
+                            <td>$0.00004001</td>
+                            <td class="win">+84.9% 🏆</td>
+                            <td>14s</td>
                         </tr>
                         <tr>
-                            <td>Feb 9, 12:48</td>
-                            <td>ai (DtWH9...pump)</td>
-                            <td>$0.00001268</td>
-                            <td>—</td>
-                            <td class="loss">-2.1% (open)</td>
-                            <td>1m+</td>
+                            <td>Feb 9, 15:19</td>
+                            <td>AI (4LNk...pump)</td>
+                            <td>$0.00000589</td>
+                            <td>$0.00000857</td>
+                            <td class="win">+38.4%</td>
+                            <td>45s</td>
                         </tr>
                         <tr>
-                            <td>Feb 9, 08:48</td>
-                            <td>PUMP (pumpC...pump)</td>
-                            <td>$0.002016</td>
-                            <td>$0.002029</td>
-                            <td class="loss">-4.24%</td>
-                            <td>10m (timeout)</td>
+                            <td>Feb 9, 14:50</td>
+                            <td>pump (3Ywo...pump)</td>
+                            <td>$0.00000351</td>
+                            <td>$0.00000464</td>
+                            <td class="win">+25.7%</td>
+                            <td>15s</td>
+                        </tr>
+                        <tr>
+                            <td>Feb 9, 14:50</td>
+                            <td>Cat (CBVA...pump)</td>
+                            <td>$0.00000320</td>
+                            <td>$0.00000378</td>
+                            <td class="win">+12.5%</td>
+                            <td>15s</td>
+                        </tr>
+                        <tr>
+                            <td>Feb 9, 14:35</td>
+                            <td>Doge (Bf6C...pump)</td>
+                            <td>$0.00000621</td>
+                            <td>$0.00000788</td>
+                            <td class="win">+20.7%</td>
+                            <td>45s</td>
+                        </tr>
+                        <tr>
+                            <td>Feb 9, 14:35</td>
+                            <td>AI (4LNk...pump)</td>
+                            <td>$0.00002119</td>
+                            <td>$0.00002471</td>
+                            <td class="win">+11.0%</td>
+                            <td>15s</td>
                         </tr>
                     </tbody>
                 </table>
@@ -206,12 +230,12 @@
             <div class="card">
                 <h3>🧠 Token Memory</h3>
                 <table>
-                    <tr><td>Tokens on Cooldown</td><td><strong id="cooldown">1</strong></td></tr>
-                    <tr><td>Losses Tracked</td><td><strong>1 (PUMP)</strong></td></tr>
+                    <tr><td>Tokens on Cooldown</td><td><strong id="cooldown">2</strong></td></tr>
+                    <tr><td>Losses Avoided</td><td><strong>14+ repeats</strong></td></tr>
                     <tr><td>Learning Mode</td><td><strong style="color:#00ff88;">Active</strong></td></tr>
                 </table>
                 <p style="color:#888; margin-top:15px; font-size:0.85rem;">
-                    PUMP on 1h cooldown after -4.24% loss. Bot won't repeat this mistake.
+                    Tokens that caused losses go on 1h cooldown. Extended to 4h after 2+ losses.
                 </p>
             </div>
         </div>
@@ -219,13 +243,15 @@
         <div class="card">
             <h3>📡 Recent Activity</h3>
             <div class="activity-log" id="log">
-                <div class="trade">[12:48:51] 🚀 BUY: ai @ $0.00001268 ($3.83 position)</div>
-                <div class="scan">[12:48:36] ✨ Found ai: score 56.1, buyRatio 52%, 5m +1.1%</div>
-                <div class="trade">[12:44:21] 🚀 BUY: AI @ $0.00002726 ($3.99 position)</div>
-                <div class="scan">[12:44:20] 📡 Found 45 unique tokens from 8 sources</div>
-                <div class="alert">[08:58:08] ❌ CLOSED: PUMP -4.24% (max hold time)</div>
-                <div class="trade">[08:48:08] 🚀 BUY: PUMP @ $0.002016 ($4.00 position)</div>
-                <div class="scan">[08:45:03] 🚀 MEME SCALPER V3 STARTED - 8 sources</div>
+                <div class="scan">[17:01:36] 📡 Scan #1030 - 49 tokens from 8 sources</div>
+                <div class="scan">[17:01:21] ⏳ J7CSmbyC... on cooldown (33min left, 1 losses)</div>
+                <div class="trade">[17:00:11] 🚀 BUY: AI @ $0.00002154 ($3.78 position)</div>
+                <div class="alert">[16:24:31] ❌ CLOSED: AI -30.6% (stop loss)</div>
+                <div class="trade">[16:17:26] 🏆 TAKE PROFIT: AI +84.9% ($3.14 profit!)</div>
+                <div class="trade">[15:19:31] 🏆 TAKE PROFIT: AI +38.4% ($1.41 profit)</div>
+                <div class="trade">[14:50:56] 🏆 TAKE PROFIT: pump +25.7% ($0.94 profit)</div>
+                <div class="trade">[14:50:47] 🏆 TAKE PROFIT: Cat +12.5% ($0.45 profit)</div>
+                <div class="scan">[08:45:03] 🚀 MEME SCALPER V3 STARTED - 8 data sources</div>
             </div>
         </div>
 
