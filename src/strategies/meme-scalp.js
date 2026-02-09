@@ -215,17 +215,50 @@ async function getHotPairs() {
 
 /**
  * Scan for meme coin opportunities
+ * V3: Multiple data sources for better coverage
  */
 export async function scan() {
   const opportunities = [];
   
   try {
-    // Get fresh Solana meme tokens (pump.fun)
-    const resp = await fetch(
-      `${DEXSCREENER_API}/latest/dex/search?q=pump`
-    );
-    const data = await resp.json();
-    const pairs = (data.pairs || []).filter(p => p.chainId === 'solana');
+    // Multi-source scanning for better coverage
+    const searchQueries = ['pump', 'sol', 'meme', 'pepe', 'doge', 'cat', 'ai'];
+    const allPairs = [];
+    const seenAddresses = new Set();
+    
+    // Fetch from multiple search terms in parallel
+    const searchPromises = searchQueries.map(async (query) => {
+      try {
+        const resp = await fetch(`${DEXSCREENER_API}/latest/dex/search?q=${query}`);
+        const data = await resp.json();
+        return (data.pairs || []).filter(p => p.chainId === 'solana');
+      } catch { return []; }
+    });
+    
+    // Also get gainers (tokens API for Solana)
+    searchPromises.push((async () => {
+      try {
+        const resp = await fetch(`${DEXSCREENER_API}/tokens/solana`);
+        const data = await resp.json();
+        return data.pairs || [];
+      } catch { return []; }
+    })());
+    
+    const results = await Promise.all(searchPromises);
+    
+    // Dedupe and merge all pairs
+    for (const pairs of results) {
+      for (const pair of pairs) {
+        const addr = pair.baseToken?.address;
+        if (addr && !seenAddresses.has(addr)) {
+          seenAddresses.add(addr);
+          allPairs.push(pair);
+        }
+      }
+    }
+    
+    console.log(`   📡 Found ${allPairs.length} unique tokens from ${searchQueries.length + 1} sources`);
+    const pairs = allPairs;
     
     // Also get trending
     const trending = await getTrendingTokens();
@@ -254,14 +287,21 @@ export async function scan() {
         
         // V2: Check minimum buy ratio (buyers must dominate)
         if (buyRatio < CONFIG.minBuyRatio) {
-          console.log(`   ⚠️ ${pair.baseToken.symbol}: buyRatio ${(buyRatio*100).toFixed(0)}% < ${CONFIG.minBuyRatio*100}% - SKIPPING`);
+          // Only log first few to avoid spam
+          if (opportunities.length < 3) {
+            console.log(`   ⚠️ ${pair.baseToken.symbol}: buyRatio ${(buyRatio*100).toFixed(0)}% < ${CONFIG.minBuyRatio*100}% - SKIPPING`);
+          }
           continue;
         }
         
-        // V2: Check minimum 5m momentum
-        if (priceChange5m < CONFIG.minPriceChange5m) {
+        // V2: Check minimum 5m momentum - RELAXED to 0.3% for slow markets
+        const minMomentum = 0.3; // Catch earlier moves
+        if (priceChange5m < minMomentum) {
           continue; // Silent skip - too many of these
         }
+        
+        // 🎯 FOUND A CANDIDATE! Log it
+        console.log(`   ✨ ${pair.baseToken.symbol}: score ${score.total}, buyRatio ${(buyRatio*100).toFixed(0)}%, 5m +${priceChange5m.toFixed(1)}%`);
         
         opportunities.push({
           token: pair.baseToken.symbol,
