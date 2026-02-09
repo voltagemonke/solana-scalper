@@ -4,6 +4,10 @@
 
 Built by VoltageMonke 🐒⚡ for the [Colosseum Agent Hackathon](https://colosseum.com/agent-hackathon)
 
+## 📊 [Live Stats Dashboard](https://voltagemonke.github.io/solana-scalper/dashboard/)
+
+See real-time performance, trades, and signals at the dashboard above.
+
 ## What It Does
 
 SolanaScalper is a fully autonomous trading agent that:
