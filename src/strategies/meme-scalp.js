@@ -65,22 +65,22 @@ export function getCooldownStats() {
   };
 }
 
-// Meme Scalp Configuration - V3 AGGRESSIVE (2026-02-07)
-// Memes are chaos - embrace volatility, catch pumps early
+// Meme Scalp Configuration - V5 HIGH WIN RATE (2026-02-09)
+// Multiple confirmations = higher win rate
 export const CONFIG = {
   // Scanning
   scanIntervalMs: 15000,        // 15 second scans (FAST)
   
-  // Entry Criteria - LOOSENED FOR MEME CHAOS
-  minLiquidityUsd: 30000,       // Min $30k liquidity (lowered - catch earlier)
-  maxLiquidityUsd: 2000000,     // Max $2M (wider range)
-  minVolume24h: 30000,          // Min $30k daily volume (lowered)
-  minVolumeSpike: 1.5,          // 1.5x normal volume = interesting
-  maxTokenAgeHours: 48,         // Focus on fresher tokens
-  minPriceChange5m: 0.5,        // At least 0.5% move in 5min (catch earlier)
-  maxPriceChange5m: 80,         // Allow bigger movers
-  minBuyRatio: 0.50,            // Remove buy bias filter - memes are 50/50 chaos
-  minScore: 50,                 // Lower score bar - volume + momentum matters more
+  // Entry Criteria - V5 STRICT CONFIRMATIONS
+  minLiquidityUsd: 20000,       // Min $20k liquidity (catch earlier)
+  maxLiquidityUsd: 2000000,     // Max $2M
+  minVolume24h: 50000,          // Min $50k daily volume
+  minVolumeSpike: 2.0,          // V5: 2x volume spike REQUIRED (realistic)
+  maxTokenAgeHours: 24,         // V5: Fresh tokens only (was 48h)
+  minPriceChange5m: 1.5,        // V5: 1.5% move required (balanced)
+  maxPriceChange5m: 50,         // Cap at 50% (avoid FOMO entries)
+  minBuyRatio: 0.52,            // V5: 52% buyers required (balanced)
+  minScore: 50,                 // Keep score flexible
   
   // Token Cooldown - PREVENTS REPEATING MISTAKES
   tokenCooldownMs: 60 * 60 * 1000,   // 1 hour cooldown after losing trade
@@ -91,12 +91,12 @@ export const CONFIG = {
   positionSizePct: 4,           // 4% per meme trade (smaller)
   maxPositions: 3,              // Max 3 meme positions
   
-  // Exit Strategy (V4 - faster exits, tighter)
-  takeProfitPct: 12,            // Take profit at +12% (memes swing big)
-  stopLossPct: 8,               // Stop loss at -8% (wider for volatility)
-  trailingActivatePct: 6,       // Start trailing at +6%
-  trailingDistancePct: 4,       // Trail 4% behind peak
-  maxHoldTimeMs: 5 * 60 * 1000, // V4: Max 5 min hold (cut slow bleeds faster)
+  // Exit Strategy (V5 - FAST profit taking)
+  takeProfitPct: 6,             // V5: Take 6% profit FAST (was 12%)
+  stopLossPct: 5,               // V5: Tighter stop -5% (was 8%)
+  trailingActivatePct: 4,       // V5: Start trailing at +4%
+  trailingDistancePct: 2,       // V5: Trail 2% behind peak (tighter)
+  maxHoldTimeMs: 2 * 60 * 1000, // V5: Max 2 min hold (was 5)
   
   // Honeypot Detection (V4)
   minSellsRequired: 3,          // Token must have at least 3 sells in 24h
@@ -282,6 +282,12 @@ export async function scan() {
       
       const score = scorePair(pair, trendingAddresses);
       
+      // DEBUG: Log top-scoring tokens
+      if (score.total >= 40) {
+        const pc5m = parseFloat(pair.priceChange?.m5 || 0);
+        console.log(`   🔍 ${pair.baseToken.symbol}: score ${score.total.toFixed(0)}, 5m ${pc5m > 0 ? '+' : ''}${pc5m.toFixed(1)}%`);
+      }
+      
       // V2: Use CONFIG.minScore (default 75) instead of hardcoded 60
       if (score.total >= CONFIG.minScore) {
         const liquidity = parseFloat(pair.liquidity?.usd || 0);
@@ -312,14 +318,29 @@ export async function scan() {
           continue;
         }
         
-        // V2: Check minimum 5m momentum - RELAXED to 0.3% for slow markets
-        const minMomentum = 0.3; // Catch earlier moves
-        if (priceChange5m < minMomentum) {
-          continue; // Silent skip - too many of these
+        // V5: Check minimum 5m momentum (strict)
+        if (priceChange5m < CONFIG.minPriceChange5m) {
+          if (priceChange5m > 1.0) { // Log near-misses
+            console.log(`   📉 ${pair.baseToken.symbol}: 5m +${priceChange5m.toFixed(1)}% < ${CONFIG.minPriceChange5m}% - SKIPPING`);
+          }
+          continue;
         }
         
-        // 🎯 FOUND A CANDIDATE! Log it
-        console.log(`   ✨ ${pair.baseToken.symbol}: score ${score.total}, buyRatio ${(buyRatio*100).toFixed(0)}%, 5m +${priceChange5m.toFixed(1)}%`);
+        // V5: VOLUME SPIKE DETECTION - key indicator!
+        // Compare current volume to expected (volume24h / 24 / 12 = 5min average)
+        const volume5mExpected = (parseFloat(pair.volume?.h24 || 0)) / 24 / 12;
+        const volume5mActual = (parseFloat(pair.volume?.h1 || 0)) / 12; // Approximate from 1h
+        const volumeSpike = volume5mActual / (volume5mExpected || 1);
+        
+        if (volumeSpike < CONFIG.minVolumeSpike) {
+          if (volumeSpike > 1.5) { // Log near-misses
+            console.log(`   📊 ${pair.baseToken.symbol}: vol ${volumeSpike.toFixed(1)}x < ${CONFIG.minVolumeSpike}x - SKIPPING`);
+          }
+          continue;
+        }
+        
+        // 🎯 FOUND A CANDIDATE WITH MULTIPLE CONFIRMATIONS!
+        console.log(`   ✨ ${pair.baseToken.symbol}: score ${score.total}, buyRatio ${(buyRatio*100).toFixed(0)}%, 5m +${priceChange5m.toFixed(1)}%, vol ${volumeSpike.toFixed(1)}x`);
         
         opportunities.push({
           token: pair.baseToken.symbol,
