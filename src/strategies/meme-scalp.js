@@ -91,12 +91,16 @@ export const CONFIG = {
   positionSizePct: 4,           // 4% per meme trade (smaller)
   maxPositions: 3,              // Max 3 meme positions
   
-  // Exit Strategy (MEME MODE - wider stops, bigger targets)
+  // Exit Strategy (V4 - faster exits, tighter)
   takeProfitPct: 12,            // Take profit at +12% (memes swing big)
   stopLossPct: 8,               // Stop loss at -8% (wider for volatility)
   trailingActivatePct: 6,       // Start trailing at +6%
   trailingDistancePct: 4,       // Trail 4% behind peak
-  maxHoldTimeMs: 10 * 60 * 1000, // Max 10 min hold (faster exits)
+  maxHoldTimeMs: 5 * 60 * 1000, // V4: Max 5 min hold (cut slow bleeds faster)
+  
+  // Honeypot Detection (V4)
+  minSellsRequired: 3,          // Token must have at least 3 sells in 24h
+  minSellRatio: 0.15,           // At least 15% of txns must be sells (not just buys)
   
   // Slippage (Dynamic)
   slippageRules: [
@@ -291,6 +295,20 @@ export async function scan() {
           if (opportunities.length < 3) {
             console.log(`   ⚠️ ${pair.baseToken.symbol}: buyRatio ${(buyRatio*100).toFixed(0)}% < ${CONFIG.minBuyRatio*100}% - SKIPPING`);
           }
+          continue;
+        }
+        
+        // V4: HONEYPOT DETECTION - require sells exist (not just buys)
+        const sells24h = pair.txns?.h24?.sells || 0;
+        const sellRatio = sells24h / (txns24h || 1);
+        
+        if (sells24h < CONFIG.minSellsRequired) {
+          console.log(`   🍯 ${pair.baseToken.symbol}: HONEYPOT? Only ${sells24h} sells - SKIPPING`);
+          continue;
+        }
+        
+        if (sellRatio < CONFIG.minSellRatio) {
+          console.log(`   🍯 ${pair.baseToken.symbol}: HONEYPOT? sellRatio ${(sellRatio*100).toFixed(0)}% too low - SKIPPING`);
           continue;
         }
         
