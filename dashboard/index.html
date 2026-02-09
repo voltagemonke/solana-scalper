@@ -114,25 +114,25 @@
                     <span class="live-dot"></span>
                     <span class="status-badge status-online" id="status">ONLINE</span>
                 </div>
-                <p style="color:#888; margin-top:10px;" id="uptime">Uptime: 46h 23m</p>
+                <p style="color:#888; margin-top:10px;" id="uptime">Started: Just now</p>
             </div>
             
             <div class="card">
                 <h3>Paper Balance</h3>
-                <div class="value green" id="balance">$100.56</div>
-                <p style="color:#00ff88; margin-top:10px;">+0.56% all time</p>
+                <div class="value green" id="balance">$100.00</div>
+                <p style="color:#888; margin-top:10px;">Starting capital</p>
             </div>
             
             <div class="card">
                 <h3>Total Scans</h3>
-                <div class="value blue" id="scans">11,247</div>
+                <div class="value blue" id="scans">0</div>
                 <p style="color:#888; margin-top:10px;">Every 15 seconds</p>
             </div>
             
             <div class="card">
                 <h3>Win Rate</h3>
-                <div class="value yellow" id="winrate">100%</div>
-                <p style="color:#888; margin-top:10px;">1 win / 0 losses</p>
+                <div class="value yellow" id="winrate">--</div>
+                <p style="color:#888; margin-top:10px;">Awaiting first trade</p>
             </div>
         </div>
 
@@ -152,12 +152,10 @@
                     </thead>
                     <tbody id="trades">
                         <tr>
-                            <td>Feb 3, 14:08</td>
-                            <td>jk1T35...pump</td>
-                            <td>$0.002419</td>
-                            <td>$0.00247</td>
-                            <td class="win">+2.11%</td>
-                            <td>1m 0s</td>
+                            <td colspan="6" style="text-align:center; color:#888; padding:30px;">
+                                🔍 System running — awaiting first qualifying trade<br>
+                                <span style="font-size:0.85rem;">Bot is scanning every 15s for tokens meeting entry criteria</span>
+                            </td>
                         </tr>
                     </tbody>
                 </table>
@@ -190,12 +188,12 @@
             <div class="card">
                 <h3>🧠 Token Memory</h3>
                 <table>
-                    <tr><td>Tokens on Cooldown</td><td><strong id="cooldown">1</strong></td></tr>
-                    <tr><td>Total Losses Avoided</td><td><strong>14+</strong></td></tr>
+                    <tr><td>Tokens on Cooldown</td><td><strong id="cooldown">0</strong></td></tr>
+                    <tr><td>Losses Tracked</td><td><strong>0</strong></td></tr>
                     <tr><td>Learning Mode</td><td><strong style="color:#00ff88;">Active</strong></td></tr>
                 </table>
                 <p style="color:#888; margin-top:15px; font-size:0.85rem;">
-                    Tokens that caused losses go on cooldown to prevent repeating mistakes.
+                    Tokens that cause losses will go on cooldown to prevent repeating mistakes.
                 </p>
             </div>
         </div>
@@ -203,11 +201,11 @@
         <div class="card">
             <h3>📡 Recent Activity</h3>
             <div class="activity-log" id="log">
-                <div class="scan">[19:09:36] Scan #8665 - PUMP buyRatio 45% &lt; 50% - SKIPPING</div>
-                <div class="scan">[19:09:21] Scan #8664 - pumpCmXq on cooldown (32min left)</div>
-                <div class="alert">[19:09:06] ⚠️ No opportunities found</div>
-                <div class="scan">[19:08:51] Scan #8663 - Checking trending tokens...</div>
-                <div class="trade">[14:08:47] ✅ TRADE CLOSED: +2.11% on jk1T35...pump</div>
+                <div class="scan">[--:--:--] System started — scanning for opportunities...</div>
+                <div style="color:#666; padding:20px; text-align:center;">
+                    Live activity will appear here as the bot scans and trades.<br>
+                    Refresh page to see updates.
+                </div>
             </div>
         </div>
 
