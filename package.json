@@ -1,0 +1,31 @@
+{
+  "name": "solana-scalper",
+  "version": "1.0.0",
+  "description": "Autonomous AI-powered meme token scalping bot for Solana",
+  "type": "module",
+  "main": "src/meme-scalp.js",
+  "scripts": {
+    "start": "node src/meme-scalp.js",
+    "paper": "MODE=paper node src/meme-scalp.js",
+    "live": "MODE=live node src/meme-scalp.js"
+  },
+  "keywords": [
+    "solana",
+    "trading",
+    "meme",
+    "ai",
+    "autonomous",
+    "defi"
+  ],
+  "author": "VoltageMonke 🐒⚡",
+  "license": "MIT",
+  "dependencies": {
+    "@solana/spl-token": "^0.4.14",
+    "@solana/web3.js": "^1.87.0",
+    "bip39": "^3.1.0",
+    "bs58": "^6.0.0",
+    "dotenv": "^16.3.1",
+    "ed25519-hd-key": "^1.3.0",
+    "node-fetch": "^3.3.2"
+  }
+}
