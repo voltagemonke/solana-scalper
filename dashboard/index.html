@@ -105,7 +105,8 @@
 </head>
 <body>
     <div class="container">
-        <h1>🐒⚡ SolanaScalper Dashboard</h1>
+        <h1>🐒⚡ SolanaScalper V5.1</h1>
+        <p style="text-align:center; color:#888; margin-bottom:30px;">Market Regime Filter + High-Conviction Entries</p>
         
         <div class="grid">
             <div class="card">
@@ -114,25 +115,25 @@
                     <span class="live-dot"></span>
                     <span class="status-badge status-online" id="status">ONLINE</span>
                 </div>
-                <p style="color:#888; margin-top:10px;" id="uptime">Running: 8h+ | 27 trades</p>
+                <p style="color:#888; margin-top:10px;" id="uptime">V5.1 deployed Feb 10 | 62 total trades</p>
             </div>
             
             <div class="card">
                 <h3>Paper Balance</h3>
-                <div class="value red" id="balance">$90.61</div>
-                <p style="color:#888; margin-top:10px;">-9.4% (learning phase)</p>
+                <div class="value red" id="balance">$81.54</div>
+                <p style="color:#888; margin-top:10px;">-18.46% (learning phase)</p>
             </div>
             
             <div class="card">
                 <h3>Total Scans</h3>
-                <div class="value blue" id="scans">1,030+</div>
-                <p style="color:#888; margin-top:10px;">8 sources, 49 tokens/scan</p>
+                <div class="value blue" id="scans">2,787+</div>
+                <p style="color:#888; margin-top:10px;">8 sources, 56 tokens/scan</p>
             </div>
             
             <div class="card">
                 <h3>Win Rate</h3>
-                <div class="value yellow" id="winrate">23%</div>
-                <p style="color:#888; margin-top:10px;">6 wins / 26 trades</p>
+                <div class="value yellow" id="winrate">29%</div>
+                <p style="color:#888; margin-top:10px;">18 wins / 62 trades</p>
             </div>
         </div>
 
@@ -206,36 +207,52 @@
 
         <div class="grid">
             <div class="card">
-                <h3>🛡️ Risk Management</h3>
+                <h3>🛡️ Risk Management (V5.1)</h3>
                 <table>
-                    <tr><td>Stop Loss</td><td><strong>-8%</strong></td></tr>
-                    <tr><td>Take Profit</td><td><strong>+12%</strong></td></tr>
+                    <tr><td>Stop Loss</td><td><strong style="color:#ff4757;">-4%</strong></td></tr>
+                    <tr><td>Take Profit</td><td><strong style="color:#00ff88;">+5%</strong></td></tr>
+                    <tr><td>Trailing Start</td><td><strong>+3%</strong></td></tr>
+                    <tr><td>Trailing Distance</td><td><strong>1.5%</strong></td></tr>
+                    <tr><td>Max Hold Time</td><td><strong>90 sec</strong></td></tr>
                     <tr><td>Position Size</td><td><strong>4%</strong></td></tr>
                     <tr><td>Max Positions</td><td><strong>3</strong></td></tr>
-                    <tr><td>Token Cooldown</td><td><strong>30 min</strong></td></tr>
                 </table>
             </div>
             
             <div class="card">
-                <h3>🎯 Entry Criteria</h3>
+                <h3>🎯 Entry Criteria (V5.1)</h3>
                 <table>
-                    <tr><td>Min Score</td><td><strong>75+</strong></td></tr>
-                    <tr><td>5m Price Change</td><td><strong>&gt; 0.8%</strong></td></tr>
-                    <tr><td>Buy Ratio</td><td><strong>&gt; 60%</strong></td></tr>
-                    <tr><td>Min Liquidity</td><td><strong>$50k</strong></td></tr>
-                    <tr><td>Max Slippage</td><td><strong>5%</strong></td></tr>
+                    <tr><td>Min Score</td><td><strong>55+</strong></td></tr>
+                    <tr><td>5m Price Change</td><td><strong>&gt; 2.0%</strong></td></tr>
+                    <tr><td>Volume Spike</td><td><strong>&gt; 2.5x</strong></td></tr>
+                    <tr><td>Buy Ratio</td><td><strong>&gt; 55%</strong></td></tr>
+                    <tr><td>Min Liquidity</td><td><strong>$20k</strong></td></tr>
+                    <tr><td>Max Token Age</td><td><strong>24h</strong></td></tr>
+                    <tr><td>Min Sells (honeypot)</td><td><strong>3+</strong></td></tr>
                 </table>
+            </div>
+            
+            <div class="card">
+                <h3>🌡️ Market Regime Filter (V5.1)</h3>
+                <table>
+                    <tr><td>SOL 1h Min</td><td><strong>&gt; -2.0%</strong></td></tr>
+                    <tr><td>SOL 5m Min</td><td><strong>&gt; -1.5%</strong></td></tr>
+                    <tr><td>Check Interval</td><td><strong>60 sec</strong></td></tr>
+                </table>
+                <p style="color:#888; margin-top:15px; font-size:0.85rem;">
+                    🆕 <strong>Pauses trading</strong> when SOL is dumping. No point scalping memes in a bear market!
+                </p>
             </div>
             
             <div class="card">
                 <h3>🧠 Token Memory</h3>
                 <table>
-                    <tr><td>Tokens on Cooldown</td><td><strong id="cooldown">2</strong></td></tr>
-                    <tr><td>Losses Avoided</td><td><strong>14+ repeats</strong></td></tr>
+                    <tr><td>Cooldown per Loss</td><td><strong>1 hour</strong></td></tr>
+                    <tr><td>Extended Cooldown</td><td><strong>4 hours (2+ losses)</strong></td></tr>
                     <tr><td>Learning Mode</td><td><strong style="color:#00ff88;">Active</strong></td></tr>
                 </table>
                 <p style="color:#888; margin-top:15px; font-size:0.85rem;">
-                    Tokens that caused losses go on 1h cooldown. Extended to 4h after 2+ losses.
+                    Tokens that caused losses go on cooldown. Prevents repeating mistakes!
                 </p>
             </div>
         </div>
@@ -243,15 +260,15 @@
         <div class="card">
             <h3>📡 Recent Activity</h3>
             <div class="activity-log" id="log">
-                <div class="scan">[17:01:36] 📡 Scan #1030 - 49 tokens from 8 sources</div>
-                <div class="scan">[17:01:21] ⏳ J7CSmbyC... on cooldown (33min left, 1 losses)</div>
-                <div class="trade">[17:00:11] 🚀 BUY: AI @ $0.00002154 ($3.78 position)</div>
-                <div class="alert">[16:24:31] ❌ CLOSED: AI -30.6% (stop loss)</div>
-                <div class="trade">[16:17:26] 🏆 TAKE PROFIT: AI +84.9% ($3.14 profit!)</div>
+                <div class="alert">[05:49:33] 🚀 V5.1 DEPLOYED - Market regime filter active!</div>
+                <div class="scan">[05:49:33] 🌡️ Market: SOL healthy (1h: -0.5%, 5m: -0.1%)</div>
+                <div class="scan">[05:49:33] 📡 Found 56 unique tokens from 8 sources</div>
+                <div class="scan">[05:33:38] ⚠️ CAT: buyRatio 45% < 55% - SKIPPING</div>
+                <div class="scan">[05:32:38] 📡 Scan #2787 - 56 tokens, very selective</div>
+                <div class="trade">[04:15:00] ❌ CLOSED: PUMP -37.5% (stop loss)</div>
+                <div class="trade">[03:45:00] ❌ CLOSED: meme -30.0% (stop loss)</div>
+                <div class="trade">[16:17:26] 🏆 TAKE PROFIT: AI +84.9% ($3.14 profit!) 🔥</div>
                 <div class="trade">[15:19:31] 🏆 TAKE PROFIT: AI +38.4% ($1.41 profit)</div>
-                <div class="trade">[14:50:56] 🏆 TAKE PROFIT: pump +25.7% ($0.94 profit)</div>
-                <div class="trade">[14:50:47] 🏆 TAKE PROFIT: Cat +12.5% ($0.45 profit)</div>
-                <div class="scan">[08:45:03] 🚀 MEME SCALPER V3 STARTED - 8 data sources</div>
             </div>
         </div>
 

@@ -65,22 +65,28 @@ export function getCooldownStats() {
   };
 }
 
-// Meme Scalp Configuration - V5 HIGH WIN RATE (2026-02-09)
-// Multiple confirmations = higher win rate
+// Meme Scalp Configuration - V5.1 MARKET REGIME FILTER (2026-02-10)
+// Multiple confirmations + DON'T trade in bear conditions
 export const CONFIG = {
   // Scanning
   scanIntervalMs: 15000,        // 15 second scans (FAST)
   
-  // Entry Criteria - V5 STRICT CONFIRMATIONS
+  // Entry Criteria - V5.1 STRICT CONFIRMATIONS
   minLiquidityUsd: 20000,       // Min $20k liquidity (catch earlier)
   maxLiquidityUsd: 2000000,     // Max $2M
   minVolume24h: 50000,          // Min $50k daily volume
-  minVolumeSpike: 2.0,          // V5: 2x volume spike REQUIRED (realistic)
-  maxTokenAgeHours: 24,         // V5: Fresh tokens only (was 48h)
-  minPriceChange5m: 1.5,        // V5: 1.5% move required (balanced)
+  minVolumeSpike: 2.5,          // V5.1: 2.5x volume spike (was 2x - need stronger confirmation)
+  maxTokenAgeHours: 24,         // Fresh tokens only
+  minPriceChange5m: 2.0,        // V5.1: 2% move required (was 1.5% - need stronger momentum)
   maxPriceChange5m: 50,         // Cap at 50% (avoid FOMO entries)
-  minBuyRatio: 0.52,            // V5: 52% buyers required (balanced)
-  minScore: 50,                 // Keep score flexible
+  minBuyRatio: 0.55,            // V5.1: 55% buyers required (was 52% - need more conviction)
+  minScore: 55,                 // V5.1: Slightly higher (was 50)
+  
+  // 🆕 V5.1 MARKET REGIME FILTER - Don't trade when SOL is dumping
+  marketRegimeEnabled: true,    // Enable/disable regime filter
+  minSol1hChange: -2.0,         // Don't trade if SOL 1h change < -2%
+  minSol5mChange: -1.5,         // Don't trade if SOL 5m change < -1.5%
+  regimeCacheSecs: 60,          // Cache SOL price for 60 seconds
   
   // Token Cooldown - PREVENTS REPEATING MISTAKES
   tokenCooldownMs: 60 * 60 * 1000,   // 1 hour cooldown after losing trade
@@ -91,12 +97,12 @@ export const CONFIG = {
   positionSizePct: 4,           // 4% per meme trade (smaller)
   maxPositions: 3,              // Max 3 meme positions
   
-  // Exit Strategy (V5 - FAST profit taking)
-  takeProfitPct: 6,             // V5: Take 6% profit FAST (was 12%)
-  stopLossPct: 5,               // V5: Tighter stop -5% (was 8%)
-  trailingActivatePct: 4,       // V5: Start trailing at +4%
-  trailingDistancePct: 2,       // V5: Trail 2% behind peak (tighter)
-  maxHoldTimeMs: 2 * 60 * 1000, // V5: Max 2 min hold (was 5)
+  // Exit Strategy (V5.1 - FASTER exits, tighter risk)
+  takeProfitPct: 5,             // V5.1: Take 5% profit FAST (was 6%)
+  stopLossPct: 4,               // V5.1: Tighter stop -4% (was 5%)
+  trailingActivatePct: 3,       // V5.1: Start trailing at +3% (was 4%)
+  trailingDistancePct: 1.5,     // V5.1: Trail 1.5% behind peak (was 2%)
+  maxHoldTimeMs: 90 * 1000,     // V5.1: Max 90 sec hold (was 2 min)
   
   // Honeypot Detection (V4)
   minSellsRequired: 3,          // Token must have at least 3 sells in 24h
@@ -110,6 +116,79 @@ export const CONFIG = {
     { maxLiquidity: Infinity, slippage: 2 }, // High = 2%
   ],
 };
+
+// 🆕 V5.1: Market Regime Cache
+let marketRegimeCache = {
+  sol1hChange: 0,
+  sol5mChange: 0,
+  lastUpdate: 0,
+};
+
+/**
+ * 🆕 V5.1: Check market regime before trading
+ * Returns { canTrade: boolean, reason: string, sol1h: number, sol5m: number }
+ */
+export async function checkMarketRegime() {
+  if (!CONFIG.marketRegimeEnabled) {
+    return { canTrade: true, reason: 'Regime filter disabled', sol1h: 0, sol5m: 0 };
+  }
+  
+  const now = Date.now();
+  const cacheValid = (now - marketRegimeCache.lastUpdate) < CONFIG.regimeCacheSecs * 1000;
+  
+  if (!cacheValid) {
+    try {
+      // Fetch SOL price data from DexScreener
+      const resp = await fetch(`${DEXSCREENER_API}/latest/dex/tokens/So11111111111111111111111111111111111111112`, { timeout: 5000 });
+      const data = await resp.json();
+      
+      // Find the main SOL/USDC pair (highest liquidity)
+      const pairs = data.pairs || [];
+      const solPair = pairs.find(p => p.quoteToken?.symbol === 'USDC' || p.quoteToken?.symbol === 'USDT') || pairs[0];
+      
+      if (solPair) {
+        marketRegimeCache = {
+          sol1hChange: parseFloat(solPair.priceChange?.h1 || 0),
+          sol5mChange: parseFloat(solPair.priceChange?.m5 || 0),
+          lastUpdate: now,
+        };
+      }
+    } catch (e) {
+      console.log(`   ⚠️ Market regime check failed: ${e.message}`);
+      // On error, assume neutral market
+      return { canTrade: true, reason: 'Regime check error, proceeding cautiously', sol1h: 0, sol5m: 0 };
+    }
+  }
+  
+  const { sol1hChange, sol5mChange } = marketRegimeCache;
+  
+  // Check 1h trend (primary filter)
+  if (sol1hChange < CONFIG.minSol1hChange) {
+    return {
+      canTrade: false,
+      reason: `SOL 1h ${sol1hChange.toFixed(1)}% < ${CONFIG.minSol1hChange}% (BEAR MODE)`,
+      sol1h: sol1hChange,
+      sol5m: sol5mChange,
+    };
+  }
+  
+  // Check 5m trend (short-term dump)
+  if (sol5mChange < CONFIG.minSol5mChange) {
+    return {
+      canTrade: false,
+      reason: `SOL 5m ${sol5mChange.toFixed(1)}% < ${CONFIG.minSol5mChange}% (DUMPING)`,
+      sol1h: sol1hChange,
+      sol5m: sol5mChange,
+    };
+  }
+  
+  return {
+    canTrade: true,
+    reason: `SOL healthy (1h: ${sol1hChange > 0 ? '+' : ''}${sol1hChange.toFixed(1)}%, 5m: ${sol5mChange > 0 ? '+' : ''}${sol5mChange.toFixed(1)}%)`,
+    sol1h: sol1hChange,
+    sol5m: sol5mChange,
+  };
+}
 
 /**
  * Calculate dynamic slippage based on liquidity
@@ -219,12 +298,21 @@ async function getHotPairs() {
 
 /**
  * Scan for meme coin opportunities
- * V3: Multiple data sources for better coverage
+ * V5.1: Market regime filter + multiple confirmations
  */
 export async function scan() {
   const opportunities = [];
   
   try {
+    // 🆕 V5.1: CHECK MARKET REGIME FIRST
+    const regime = await checkMarketRegime();
+    console.log(`   🌡️ Market: ${regime.reason}`);
+    
+    if (!regime.canTrade) {
+      console.log(`   ⏸️ Pausing trading - waiting for better conditions`);
+      return []; // Return empty, don't trade in bear conditions
+    }
+    
     // Multi-source scanning for better coverage
     const searchQueries = ['pump', 'sol', 'meme', 'pepe', 'doge', 'cat', 'ai'];
     const allPairs = [];
